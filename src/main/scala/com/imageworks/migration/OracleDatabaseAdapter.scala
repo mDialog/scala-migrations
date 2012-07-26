@@ -223,10 +223,14 @@ class OracleDatabaseAdapter(override val schemaNameOpt: Option[String])
         new OracleCharColumnDefinition(use_nchar_type)
       case DecimalType =>
         new OracleDecimalColumnDefinition
+      case DoubleType =>
+	new DefaultDoubleColumnDefinition
       case IntegerType =>
         new OracleIntegerColumnDefinition
       case SmallintType =>
         new OracleSmallintColumnDefinition
+      case TextType =>
+	new DefaultTextColumnDefinition
       case TimestampType =>
         new DefaultTimestampColumnDefinition
       case VarbinaryType =>

@@ -541,6 +541,15 @@ class DefaultDecimalColumnDefinition
   val decimalSqlName = "DECIMAL"
 }
 
+
+class DefaultDoubleColumnDefinition
+  extends ColumnDefinition
+  with ColumnSupportsDefault
+{
+  override
+  def sql = "DOUBLE PRECISION"
+}
+
 class DefaultIntegerColumnDefinition
   extends ColumnDefinition
   with ColumnSupportsDefault
@@ -555,6 +564,13 @@ class DefaultSmallintColumnDefinition
 {
   override
   val sql = "SMALLINT"
+}
+
+class DefaultTextColumnDefinition
+  extends ColumnDefinition
+{
+  override
+  def sql = "CLOB"
 }
 
 class DefaultTimestampColumnDefinition

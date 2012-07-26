@@ -39,6 +39,13 @@ class PostgresqlByteaColumnDefinition
   val sql = "BYTEA"
 }
 
+class PostgresqlTextColumnDefinition
+  extends ColumnDefinition
+{
+  override
+  val sql = "TEXT"
+}
+
 class PostgresqlDatabaseAdapter(override val schemaNameOpt: Option[String])
   extends DatabaseAdapter(schemaNameOpt)
 {
@@ -73,12 +80,16 @@ class PostgresqlDatabaseAdapter(override val schemaNameOpt: Option[String])
         new DefaultCharColumnDefinition
       case DecimalType =>
         new DefaultDecimalColumnDefinition
+      case DoubleType =>
+	new DefaultDoubleColumnDefinition
       case IntegerType =>
         new DefaultIntegerColumnDefinition
-      case TimestampType =>
-        new DefaultTimestampColumnDefinition
       case SmallintType =>
         new DefaultSmallintColumnDefinition
+      case TextType =>
+	new PostgresqlTextColumnDefinition
+      case TimestampType =>
+        new DefaultTimestampColumnDefinition
       case VarbinaryType =>
         new PostgresqlByteaColumnDefinition
       case VarcharType =>

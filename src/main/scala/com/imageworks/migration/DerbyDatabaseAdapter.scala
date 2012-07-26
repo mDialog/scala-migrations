@@ -88,12 +88,16 @@ class DerbyDatabaseAdapter(override val schemaNameOpt: Option[String])
         new DefaultCharColumnDefinition
       case DecimalType =>
         new DefaultDecimalColumnDefinition
+      case DoubleType =>
+	new DefaultDoubleColumnDefinition
       case IntegerType =>
         new DefaultIntegerColumnDefinition
-      case TimestampType =>
-        new DerbyTimestampColumnDefinition
       case SmallintType =>
         new DefaultSmallintColumnDefinition
+      case TextType =>
+	new DefaultTextColumnDefinition
+      case TimestampType =>
+        new DerbyTimestampColumnDefinition
       case VarbinaryType =>
         new DerbyVarbinaryColumnDefinition
       case VarcharType =>

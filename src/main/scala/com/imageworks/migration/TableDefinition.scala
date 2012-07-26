@@ -178,6 +178,24 @@ class TableDefinition(adapter: DatabaseAdapter,
   }
 
   /**
+   * Add a DOUBLE column type to the table.  The actual SQL text used
+   * to create the column is chosen by the database adapter and may be
+   * different than the name of the column_type argument.
+   *
+   * @param name the column's name
+   * @param a possibly empty array of column options to customize the
+   *        column
+   * @return the same instance
+   */
+  final
+  def double(name: String,
+              options: ColumnOption*): TableDefinition =
+  {
+    column(name, DoubleType, options: _*)
+  }
+
+
+  /**
    * Add a INTEGER column type to the table.  The actual SQL text used
    * to create the column is chosen by the database adapter and may be
    * different than the name of the column_type argument.
@@ -210,6 +228,24 @@ class TableDefinition(adapter: DatabaseAdapter,
   {
     column(name, SmallintType, options: _*)
   }
+
+  /**
+   * Add a TEXT column type to the table.  The actual SQL text used
+   * to create the column is chosen by the database adapter and may be
+   * different than the name of the column_type argument.
+   *
+   * @param name the column's name
+   * @param a possibly empty array of column options to customize the
+   *        column
+   * @return the same instance
+   */
+  final
+  def text(name: String,
+              options: ColumnOption*): TableDefinition =
+  {
+    column(name, TextType, options: _*)
+  }
+
 
   /**
    * Add a TIMESTAMP column type to the table.  The actual SQL text
@@ -261,4 +297,5 @@ class TableDefinition(adapter: DatabaseAdapter,
   {
     column(name, VarcharType, options: _*)
   }
+
 }
