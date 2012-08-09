@@ -70,6 +70,11 @@ sealed trait IndexOption
 sealed trait CheckOption
 
 /**
+ * The base trait for all sequence options.
+ */
+sealed trait SequenceOption
+
+/**
  * The base trait for all table options.
  */
 sealed trait TableOption
@@ -229,6 +234,80 @@ case class Scale(value: Int)
 case object Unique
   extends ColumnOption
   with IndexOption
+
+
+/**
+ * Specify an increment for a sequence
+ */
+case class IncrementBy(value: Int)
+  extends SequenceOption
+
+/**
+ * Specify no maximum value
+ */
+case object NoMaxValue
+  extends SequenceOption
+
+/**
+ * Specify no minimum value
+ */
+case object NoMinValue
+  extends SequenceOption
+
+/**
+ * Specify a maximum value
+ */
+case class MaxValue(value: Int)
+  extends SequenceOption
+
+/**
+ * Specify a minimum value
+ */
+case class MinValue(value: Int)
+  extends SequenceOption
+
+/**
+ * Specify the starting value for a sequence
+ */
+case class StartsWith(value: Int)
+  extends SequenceOption
+
+/**
+ * Specify a cache size for sequence
+ */
+case class Cache(value: Int)
+  extends SequenceOption
+
+/**
+ * Specify no cache for sequence
+ */
+case object NoCache
+  extends SequenceOption
+
+/**
+ * Specify that sequence should cycle
+ */
+case object Cycle
+  extends SequenceOption
+
+/**
+ * Specify that a sequence should not cycle
+ */
+case object NoCycle
+  extends SequenceOption
+
+/**
+ * Specify that a sequence should provide identifiers in order
+ */
+case object Order
+  extends SequenceOption
+
+/**
+ * Specify that a sequence may provide identifiers out of order
+ */
+case object NoOrder
+  extends SequenceOption
+
 
 /**
  * Maps to GRANT ALL PRIVILEGES.

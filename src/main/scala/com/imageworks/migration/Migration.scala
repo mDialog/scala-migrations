@@ -366,6 +366,42 @@ abstract class Migration
     execute(sql)
   }
 
+
+  /**
+   * Add a sequence to the database.
+   *
+   * @param sequence_name the name of the sequence
+   * @param a possibly empty array of sequence options
+   */
+  final
+  def addSequence(sequence_name: String,
+		  options: SequenceOption*): Unit =
+  {
+    val sequence_definition = new SequenceDefinition(sequence_name)
+
+    val sql = new java.lang.StringBuilder(512)
+		.append("CREATE SEQUENCE ")
+		.append(adapter.quoteSequenceName(sequence_name))
+		.append(sequence_definition.toSql)
+		.toString
+    execute(sql)
+  }
+
+  /**
+   * Remove a sequence from the database.
+   *
+   * @param sequence_name the name of the sequence
+   */
+  final
+  def dropSequence(sequence_name: String): Unit =
+  {
+    val sql = new java.lang.StringBuilder(512)
+		.append("DROP SEQUENCE ")
+		.append(adapter.quoteSequenceName(sequence_name))
+		.toString
+    execute(sql)
+  }
+
   private
   def indexNameFor(table_name: String,
                    column_names: Array[String],

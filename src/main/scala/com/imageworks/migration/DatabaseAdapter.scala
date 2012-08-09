@@ -185,6 +185,13 @@ class DatabaseAdapter(val schemaNameOpt: Option[String])
     '"'
   }
 
+  def quoteSequenceName(sequence_name: String): String =
+  {
+    '"' + 
+    unquotedNameConverter(sequence_name) +
+    '"'
+  }
+
   def quoteTableName(schema_name_opt: Option[String],
                      table_name: String): String =
   {
