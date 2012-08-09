@@ -84,6 +84,13 @@ class OracleDecimalColumnDefinition
   val decimalSqlName = "NUMBER"
 }
 
+class OracleBooleanColumnDefinition
+  extends ColumnDefinition
+{
+  override 
+  val sql = "NUMBER(1)"
+}
+
 /**
  * Map the INTEGER SQL type to a NUMBER(10, 0).
  *
@@ -214,11 +221,8 @@ class OracleDatabaseAdapter(override val schemaNameOpt: Option[String])
         new OracleBigintColumnDefinition
       case BlobType =>
         new DefaultBlobColumnDefinition
-      case BooleanType => {
-        val message = "Oracle does not support a boolean type, you must " +
-                      "choose a mapping your self."
-        throw new UnsupportedColumnTypeException(message)
-      }
+      case BooleanType =>
+	new OracleBooleanColumnDefinition
       case CharType =>
         new OracleCharColumnDefinition(use_nchar_type)
       case DecimalType =>
