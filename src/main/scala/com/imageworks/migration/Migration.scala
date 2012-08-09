@@ -377,7 +377,7 @@ abstract class Migration
   def addSequence(sequence_name: String,
 		  options: SequenceOption*): Unit =
   {
-    val sequence_definition = new SequenceDefinition(sequence_name)
+    val sequence_definition = new SequenceDefinition(sequence_name, options :_*)
 
     val sql = new java.lang.StringBuilder(512)
 		.append("CREATE SEQUENCE ")

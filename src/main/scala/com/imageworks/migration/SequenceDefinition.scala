@@ -6,12 +6,11 @@ import org.slf4j.LoggerFactory
 
 /* add adapter param if it proves necessary to generate different sql for sequences */
 
-class SequenceDefinition(sequence_name: String)
+class SequenceDefinition(sequence_name: String,
+			 options: SequenceOption*)
 {
   private final
   val logger = LoggerFactory.getLogger(this.getClass)
-
-  protected[migration] var options: List[SequenceOption] = _
 
   private val incrementBy: Option[Int] = {
     None +: (options collect { case IncrementBy(x) => Some(x) }) last
