@@ -69,6 +69,16 @@ class TableDefinition(adapter: DatabaseAdapter,
   }
 
   /**
+   * Retrieve a list of sql statements that should be run after the sql for
+   * the TableDefinition has been successfully executed.
+   */
+  final
+  def postSql: Seq[String] =
+  {
+    column_definitions flatMap { _.postSql }
+  }
+
+  /**
    * Add any known column type to the table.  The actual SQL text used
    * to create the column is chosen by the database adapter and may be
    * different than the name of the column_type argument.

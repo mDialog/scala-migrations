@@ -235,6 +235,13 @@ case object Unique
   extends ColumnOption
   with IndexOption
 
+/**
+ * Specify that a column should contain a default autoincremented value,
+ * sourced from a specified sequence
+ */
+case class Autoincrement(sequence_name: String)
+  extends ColumnOption
+
 
 /**
  * Specify an increment for a sequence

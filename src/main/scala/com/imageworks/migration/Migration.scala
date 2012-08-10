@@ -300,6 +300,9 @@ abstract class Migration
                 .append(')')
                 .toString
     execute(sql)
+
+    for (post <- table_definition.postSql)
+      execute(post)
   }
 
   final
@@ -318,6 +321,9 @@ abstract class Migration
                 .append(table_definition.toSql)
                 .toString
     execute(sql)
+
+    for (post <- table_definition.postSql)
+      execute(post)
   }
 
   /**

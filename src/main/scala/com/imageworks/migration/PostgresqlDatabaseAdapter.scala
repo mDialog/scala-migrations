@@ -110,4 +110,23 @@ class PostgresqlDatabaseAdapter(override val schemaNameOpt: Option[String])
       .append(column_definition.toSql)
       .toString
   }
+
+  /* TODO - make this stuff work */
+
+  private
+  def quoteSequenceDefault(sequence_name: String): String = 
+  {
+    "'" +
+    unquotedNameConverter(sequence_name) +
+    "'"
+  }
+
+  override
+  def defaultAutoincrementFromSequenceSql(sequence_name: String): Option[String] = {
+    Some(new java.lang.StringBuilder(512)
+      .append("NEXTVAL(")
+      .append(quoteSequenceDefault(sequence_name))
+      .append(")")
+      .toString)
+  }
 }

@@ -60,6 +60,7 @@ package com.imageworks.migration
 class OracleBigintColumnDefinition
   extends ColumnDefinition
   with ColumnSupportsDefault
+  with ColumnSupportsAutoincrement
 {
   override
   val sql = "NUMBER(19, 0)"
@@ -248,7 +249,9 @@ class OracleDatabaseAdapter(override val schemaNameOpt: Option[String])
   def alterColumnSql(schema_name_opt: Option[String],
                      column_definition: ColumnDefinition): String =
   {
-    new java.lang.StringBuilder(512)
+    val post = column_definition.postSql
+
+    val sb = new java.lang.StringBuilder(512)
       .append("ALTER TABLE ")
       .append(quoteTableName(schema_name_opt, column_definition.getTableName))
       .append(" MODIFY (")
@@ -256,7 +259,15 @@ class OracleDatabaseAdapter(override val schemaNameOpt: Option[String])
       .append(' ')
       .append(column_definition.toSql)
       .append(')')
-      .toString
+
+    /* because of autoincrement, there is a second possible sql statement to
+     * pack onto the end here */    
+    if (post.isDefined) {
+      sb.append(';')
+      sb.append(post.get)
+    }
+    
+    sb.toString
   }
 
   override
@@ -332,5 +343,33 @@ class OracleDatabaseAdapter(override val schemaNameOpt: Option[String])
       case Some(OnDelete(Restrict)) => ""
       case opt => super.onDeleteSql(opt)
     }
+  }
+
+  /* TODO - make this stuff work */
+
+  override
+  def postAutoincrementFromSequenceSql(table_name: String,
+				       column_name: String,
+				       sequence_name: String): Option[String] =
+  {
+    val trigger_name = table_name + "_" + sequence_name + "_trigger"
+
+    Some(new java.lang.StringBuilder(512)
+      .append("CREATE OR REPLACE TRIGGER ")
+      .append(quoteTableName(trigger_name))
+      .append(" BEFORE INSERT ON ")
+      .append(quoteTableName(table_name))
+      .append(" FOR EACH row BEGIN IF inserting THEN IF :NEW.")
+      .append(quoteColumnName(column_name))
+      .append(" IS NULL THEN SELECT ")
+      .append(quoteSequenceName(sequence_name))
+      .append(".nextval INTO :NEW.")
+      .append(quoteColumnName(column_name))
+      .append(" FROM dual;")
+      .append(" END IF; END IF; END;")
+      .append(" ALTER TRIGGER ")
+      .append(quoteTableName(trigger_name))
+      .append(" ENABLE;")
+      .toString)
   }
 }

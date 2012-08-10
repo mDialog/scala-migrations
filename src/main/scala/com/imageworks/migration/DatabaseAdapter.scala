@@ -575,4 +575,16 @@ class DatabaseAdapter(val schemaNameOpt: Option[String])
       case None => ""
     }
   }
+
+  /* database drivers which support Autoincrement annotations should override one
+   * of the following two functions - default should return sql that can be placed
+   * in a DEFAULT() expression, and post should return an arbitrary executable sql
+   * statement that will be run at some point after a column definition marked
+   * autoincrementing has been created or altered */
+  
+  def defaultAutoincrementFromSequenceSql(sequence_name: String): Option[String] = None
+
+  def postAutoincrementFromSequenceSql(table_name: String,
+				       column_name: String,
+				       sequence_name: String): Option[String] = None
 }

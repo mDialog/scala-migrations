@@ -74,6 +74,15 @@ trait ColumnSupportsScale
 }
 
 /**
+ * Marker trait for a ColumnDefinition subclass that the column type
+ * may have a default value sourced from a sequence (Autoincrement)
+ */
+trait ColumnSupportsAutoincrement
+{
+  this: ColumnDefinition =>
+}
+
+/**
  * Abstract base class for the definition of a column type.  It stores
  * all the information for the column type, e.g. if it supports a
  * default value, if it supports a limit on the range of values it can
@@ -142,6 +151,12 @@ class ColumnDefinition
   var default: Option[String] = None
 
   /**
+   * If a sequence used to provide autoincrement is specified for the column.
+   */
+  private
+  var autoincrement: Option[String] = None
+
+  /**
    * Called after the above properties have been wired.
    */
   def initialize(): Unit =
@@ -152,6 +167,10 @@ class ColumnDefinition
 
     if (this.isInstanceOf[ColumnSupportsDefault]) {
       checkForDefault()
+    }
+
+    if (this.isInstanceOf[ColumnSupportsAutoincrement]) {
+      checkForAutoincrement()
     }
 
     if (this.isInstanceOf[ColumnSupportsPrecision]) {
@@ -180,6 +199,27 @@ class ColumnDefinition
                     Array[AnyRef](getColumnName, default.get, value))
       }
       default = Some(value)
+    }
+  }
+
+  /**
+   * If a column can have an autoincrementing default value,
+   * then the derived class should call this method to check for a 
+   * sequence to use as the source of values. This will remove
+   * the Autoincrement option from the option list.
+   */
+
+  private
+  def checkForAutoincrement(): Unit =
+  {
+    for (option @ Autoincrement(sequence_name) <- options) {
+      options = options.filter(_ != option)
+
+      if (autoincrement.isDefined && autoincrement.get != sequence_name) {
+	logger.warn("Redefining the sequence used to autoincrement '{}' from '{}' to '{}'.",
+		    Array[AnyRef](getColumnName, autoincrement.get, sequence_name))
+      }
+      autoincrement = Some(sequence_name)
     }
   }
 
@@ -348,11 +388,39 @@ class ColumnDefinition
   protected
   def sql: String
 
+
+  final
+  def postSql: Option[String] =
+  {
+    autoincrement flatMap {
+      getAdapter.postAutoincrementFromSequenceSql(getTableName, getColumnName, _)
+    }
+  }
+
   final
   def toSql: String =
   {
     val sb = new java.lang.StringBuilder(512)
                .append(sql)
+
+
+    /* TODO - autoIncrement annotation implies non-null, no default annotations
+     * (possibly among other implications?)
+     * if the database supports using the sequence as a source of values inline,
+     * that must be both determined and substituted by means of DEFAULT right here.
+     * if not, the database needs to provide a post-column definition fragment of
+     * sql to enforce the annotation afterwards. postSql should be usable (instead of
+     * toSql) to retrieve this (Option[String]?)
+     */
+
+    if (autoincrement.isDefined) {
+      if (default.isDefined) {
+	logger.warn("Both a default value and an autoincrement were specified for '{}'. " +
+		    "The default value '{}' will be discarded for this column.",
+		    Array[AnyRef](getColumnName, default.get))
+      }
+      default = getAdapter.defaultAutoincrementFromSequenceSql(autoincrement.get)
+    }
 
     if (default.isDefined) {
       sb.append(" DEFAULT ")
@@ -505,6 +573,7 @@ abstract class AbstractDecimalColumnDefinition
 class DefaultBigintColumnDefinition
   extends ColumnDefinition
   with ColumnSupportsDefault
+  with ColumnSupportsAutoincrement
 {
   override
   val sql = "BIGINT"
@@ -553,6 +622,7 @@ class DefaultDoubleColumnDefinition
 class DefaultIntegerColumnDefinition
   extends ColumnDefinition
   with ColumnSupportsDefault
+  with ColumnSupportsAutoincrement
 {
   override
   val sql = "INTEGER"
@@ -561,6 +631,7 @@ class DefaultIntegerColumnDefinition
 class DefaultSmallintColumnDefinition
   extends ColumnDefinition
   with ColumnSupportsDefault
+  with ColumnSupportsAutoincrement
 {
   override
   val sql = "SMALLINT"
