@@ -119,6 +119,7 @@ class OracleBooleanColumnDefinition
 class OracleIntegerColumnDefinition
   extends ColumnDefinition
   with ColumnSupportsDefault
+  with ColumnSupportsAutoincrement
 {
   override
   val sql = "NUMBER(10, 0)"
@@ -151,6 +152,7 @@ class OracleIntegerColumnDefinition
 class OracleSmallintColumnDefinition
   extends ColumnDefinition
   with ColumnSupportsDefault
+  with ColumnSupportsAutoincrement
 {
   override
   val sql = "NUMBER(5, 0)"
@@ -352,7 +354,10 @@ class OracleDatabaseAdapter(override val schemaNameOpt: Option[String])
 				       column_name: String,
 				       sequence_name: String): Option[String] =
   {
-    val trigger_name = table_name + "_" + sequence_name + "_trigger"
+    /* TODO - trigger_name is stupidly chosen, but longer names would need mangling due
+     * to common oracle identifier length limitations (31 characters?) */
+
+    val trigger_name = sequence_name + "_trigger"
 
     Some(new java.lang.StringBuilder(512)
       .append("CREATE OR REPLACE TRIGGER ")
