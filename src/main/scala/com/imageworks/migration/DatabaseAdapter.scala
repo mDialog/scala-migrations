@@ -244,7 +244,7 @@ class DatabaseAdapter(val schemaNameOpt: Option[String])
 
   protected
   def alterColumnSql(schema_name_opt: Option[String],
-                     column_definition: ColumnDefinition): String
+                     column_definition: ColumnDefinition): Seq[String]
 
   /**
    * Different databases require different SQL to alter a column's
@@ -263,7 +263,7 @@ class DatabaseAdapter(val schemaNameOpt: Option[String])
                      table_name: String,
                      column_name: String,
                      column_type: SqlType,
-                     options: ColumnOption*): String =
+                     options: ColumnOption*): Seq[String] =
   {
     alterColumnSql(schema_name_opt,
                    newColumnDefinition(table_name,
@@ -286,7 +286,7 @@ class DatabaseAdapter(val schemaNameOpt: Option[String])
   def alterColumnSql(table_name: String,
                      column_name: String,
                      column_type: SqlType,
-                     options: ColumnOption*): String =
+                     options: ColumnOption*): Seq[String] =
   {
     alterColumnSql(schemaNameOpt,
                    table_name,
@@ -586,5 +586,5 @@ class DatabaseAdapter(val schemaNameOpt: Option[String])
 
   def postAutoincrementFromSequenceSql(table_name: String,
 				       column_name: String,
-				       sequence_name: String): Option[String] = None
+				       sequence_name: String): Option[Seq[String]] = None
 }

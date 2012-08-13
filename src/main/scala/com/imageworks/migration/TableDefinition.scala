@@ -75,7 +75,7 @@ class TableDefinition(adapter: DatabaseAdapter,
   final
   def postSql: Seq[String] =
   {
-    column_definitions flatMap { _.postSql }
+    (column_definitions flatMap { _.postSql }) flatten
   }
 
   /**

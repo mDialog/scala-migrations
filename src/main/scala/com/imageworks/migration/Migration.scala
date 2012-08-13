@@ -349,10 +349,11 @@ abstract class Migration
                   column_type: SqlType,
                   options: ColumnOption*): Unit =
   {
-    execute(adapter.alterColumnSql(table_name,
+    for (sql <- adapter.alterColumnSql(table_name,
                                    column_name,
                                    column_type,
                                    options: _*))
+      execute(sql)
   }
 
   final

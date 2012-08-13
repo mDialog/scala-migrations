@@ -99,9 +99,9 @@ class PostgresqlDatabaseAdapter(override val schemaNameOpt: Option[String])
 
   override protected
   def alterColumnSql(schema_name_opt: Option[String],
-                     column_definition: ColumnDefinition): String =
+                     column_definition: ColumnDefinition): Seq[String] =
   {
-    new java.lang.StringBuilder(512)
+    val alter = new java.lang.StringBuilder(512)
       .append("ALTER TABLE ")
       .append(quoteTableName(schema_name_opt, column_definition.getTableName))
       .append(" ALTER COLUMN ")
@@ -109,6 +109,8 @@ class PostgresqlDatabaseAdapter(override val schemaNameOpt: Option[String])
       .append(" TYPE ")
       .append(column_definition.toSql)
       .toString
+
+    Seq(alter)
   }
 
   /* TODO - make this stuff work */

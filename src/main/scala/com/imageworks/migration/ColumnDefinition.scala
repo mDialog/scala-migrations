@@ -390,7 +390,7 @@ class ColumnDefinition
 
 
   final
-  def postSql: Option[String] =
+  def postSql: Option[Seq[String]] =
   {
     autoincrement flatMap {
       getAdapter.postAutoincrementFromSequenceSql(getTableName, getColumnName, _)

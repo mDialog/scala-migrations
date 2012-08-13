@@ -249,11 +249,11 @@ class OracleDatabaseAdapter(override val schemaNameOpt: Option[String])
 
   override protected
   def alterColumnSql(schema_name_opt: Option[String],
-                     column_definition: ColumnDefinition): String =
+                     column_definition: ColumnDefinition): Seq[String] =
   {
     val post = column_definition.postSql
 
-    val sb = new java.lang.StringBuilder(512)
+    val alter = new java.lang.StringBuilder(512)
       .append("ALTER TABLE ")
       .append(quoteTableName(schema_name_opt, column_definition.getTableName))
       .append(" MODIFY (")
@@ -261,15 +261,9 @@ class OracleDatabaseAdapter(override val schemaNameOpt: Option[String])
       .append(' ')
       .append(column_definition.toSql)
       .append(')')
+      .toString
 
-    /* because of autoincrement, there is a second possible sql statement to
-     * pack onto the end here */    
-    if (post.isDefined) {
-      sb.append(';')
-      sb.append(post.get)
-    }
-    
-    sb.toString
+    alter +: post.getOrElse(Seq())
   }
 
   override
@@ -352,14 +346,14 @@ class OracleDatabaseAdapter(override val schemaNameOpt: Option[String])
   override
   def postAutoincrementFromSequenceSql(table_name: String,
 				       column_name: String,
-				       sequence_name: String): Option[String] =
+				       sequence_name: String): Option[Seq[String]] =
   {
     /* TODO - trigger_name is stupidly chosen, but longer names would need mangling due
      * to common oracle identifier length limitations (31 characters?) */
 
     val trigger_name = sequence_name + "_trigger"
 
-    Some(new java.lang.StringBuilder(512)
+    val make_trigger = new java.lang.StringBuilder(512)
       .append("CREATE OR REPLACE TRIGGER ")
       .append(quoteTableName(trigger_name))
       .append(" BEFORE INSERT ON ")
@@ -372,9 +366,14 @@ class OracleDatabaseAdapter(override val schemaNameOpt: Option[String])
       .append(quoteColumnName(column_name))
       .append(" FROM dual;")
       .append(" END IF; END IF; END;")
-      .append(" ALTER TRIGGER ")
+      .toString
+
+    val install_trigger = new java.lang.StringBuilder(512)
+      .append("ALTER TRIGGER ")
       .append(quoteTableName(trigger_name))
-      .append(" ENABLE;")
-      .toString)
+      .append(" ENABLE")
+      .toString
+    
+    Some(Seq(make_trigger, install_trigger))
   }
 }
